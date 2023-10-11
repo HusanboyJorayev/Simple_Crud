@@ -5,6 +5,7 @@ import com.example.simple_crud.dto.ResponseDto;
 import com.example.simple_crud.dto.SimpleCrud;
 import com.example.simple_crud.service.CardService;
 import com.example.simple_crud.service.mapper.CardMapper;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,7 +19,7 @@ public class CardController implements SimpleCrud<Integer, CardDto> {
 
     @Override
     @PostMapping("/create")
-    public ResponseDto<CardDto> create(@RequestBody CardDto dto) {
+    public ResponseDto<CardDto> create(@RequestBody @Valid CardDto dto) {
         return this.cardService.create(dto);
     }
 
@@ -30,7 +31,7 @@ public class CardController implements SimpleCrud<Integer, CardDto> {
 
     @Override
     @PutMapping("/update")
-    public ResponseDto<CardDto> update(@RequestBody CardDto dto, @RequestParam Integer id) {
+    public ResponseDto<CardDto> update(@RequestBody @Valid CardDto dto, @RequestParam Integer id) {
         return this.cardService.update(dto, id);
     }
 

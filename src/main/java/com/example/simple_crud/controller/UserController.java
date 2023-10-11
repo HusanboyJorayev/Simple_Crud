@@ -4,6 +4,7 @@ import com.example.simple_crud.dto.ResponseDto;
 import com.example.simple_crud.dto.SimpleCrud;
 import com.example.simple_crud.dto.UserDto;
 import com.example.simple_crud.service.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,7 +17,7 @@ public class UserController implements SimpleCrud<Integer, UserDto> {
 
     @Override
     @PostMapping("/create")
-    public ResponseDto<UserDto> create(@RequestBody UserDto dto) {
+    public ResponseDto<UserDto> create(@RequestBody @Valid UserDto dto) {
         return this.userService.create(dto);
     }
 
@@ -28,7 +29,7 @@ public class UserController implements SimpleCrud<Integer, UserDto> {
 
     @Override
     @PutMapping("/update")
-    public ResponseDto<UserDto> update(@RequestBody UserDto dto, @RequestParam Integer id) {
+    public ResponseDto<UserDto> update(@RequestBody @Valid UserDto dto, @RequestParam Integer id) {
         return this.userService.update(dto, id);
     }
 

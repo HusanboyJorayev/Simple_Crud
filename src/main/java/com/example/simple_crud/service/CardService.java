@@ -1,15 +1,18 @@
 package com.example.simple_crud.service;
 
 import com.example.simple_crud.dto.CardDto;
+import com.example.simple_crud.dto.ErrorDto;
 import com.example.simple_crud.dto.ResponseDto;
 import com.example.simple_crud.dto.SimpleCrud;
 import com.example.simple_crud.model.Card;
 import com.example.simple_crud.repository.CardRepository;
 import com.example.simple_crud.service.mapper.CardMapper;
+import com.example.simple_crud.service.validation.CardValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,9 +21,19 @@ public class CardService implements SimpleCrud<Integer, CardDto> {
 
     private final CardRepository cardRepository;
     private final CardMapper cardMapper;
+    private final CardValidation cardValidation;
 
     @Override
     public ResponseDto<CardDto> create(CardDto dto) {
+
+        List<ErrorDto>errors=this.cardValidation.errors(dto);
+        if (!errors.isEmpty()) {
+            return ResponseDto.<CardDto>builder()
+                    .code(-3)
+                    .message("Validation error")
+                    .errors(errors)
+                    .build();
+        }
 
         Card card=this.cardMapper.toEntity(dto);
         card.setCreatedAt(LocalDateTime.now());

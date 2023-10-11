@@ -1,15 +1,15 @@
 package com.example.simple_crud.service;
 
-import com.example.simple_crud.dto.ResponseDto;
-import com.example.simple_crud.dto.SimpleCrud;
-import com.example.simple_crud.dto.UserDto;
+import com.example.simple_crud.dto.*;
 import com.example.simple_crud.model.User;
 import com.example.simple_crud.repository.UserRepository;
 import com.example.simple_crud.service.mapper.UserMapper;
+import com.example.simple_crud.service.validation.UserValidation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -18,9 +18,20 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
 
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final UserValidation userValidation;
 
     @Override
     public ResponseDto<UserDto> create(UserDto dto) {
+
+        List<ErrorDto> errors=this.userValidation.errors(dto);
+        if (!errors.isEmpty()) {
+            return ResponseDto.<UserDto>builder()
+                    .code(-3)
+                    .message("Validation error")
+                    .errors(errors)
+                    .build();
+        }
+
         User user = this.userMapper.toEntity(dto);
         user.setCreatedAt(LocalDateTime.now());
         this.userRepository.save(user);
@@ -53,6 +64,15 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
 
     @Override
     public ResponseDto<UserDto> update(UserDto dto, Integer id) {
+
+        List<ErrorDto> errors=this.userValidation.errors(dto);
+        if (!errors.isEmpty()) {
+            return ResponseDto.<UserDto>builder()
+                    .code(-3)
+                    .message("Validation error")
+                    .errors(errors)
+                    .build();
+        }
 
         Optional<User>optional=this.userRepository.findByIdAndDeletedAtIsNull(id);
         if (optional.isEmpty()){
