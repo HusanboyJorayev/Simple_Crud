@@ -2,6 +2,7 @@ package com.example.simple_crud.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -15,12 +16,14 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
 
+    @NotNull(message = "user id cannot be null")
     private Integer id;
+    @NotBlank(message = "user name cannot be null or empty")
     private String name;
     private String surname;
     @NotBlank(message = "email cannot be null or empty")
     private String email;
-    @NotBlank(message = "email cannot be null or empty")
+    @NotBlank(message = "password cannot be null or empty")
     private String password;
 
     private List<CardDto>cards;

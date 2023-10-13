@@ -22,9 +22,9 @@ public class ExceptionHandlerClass {
                                         .map(fieldError -> {
                                             String field= fieldError.getField();
                                             String message=fieldError.getDefaultMessage();
-                                            String rejactionValue=String.valueOf(fieldError.getRejectedValue());
+                                            String rejectionValue=String.valueOf(fieldError.getRejectedValue());
 
-                                            return new ErrorDto(field,String.format("message::%s,rejactionValue::$s",message,rejactionValue));
+                                            return new ErrorDto(field,String.format("message::%s,rejactionValue::$s",message,rejectionValue));
                                         }).toList()
                         )
                         .build()

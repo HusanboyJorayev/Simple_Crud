@@ -9,6 +9,7 @@ import com.example.simple_crud.repository.CardRepository;
 import com.example.simple_crud.service.mapper.CardMapper;
 import com.example.simple_crud.service.validation.CardValidation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -64,12 +65,58 @@ public class CardService implements SimpleCrud<Integer, CardDto> {
     }
 
     @Override
-    public ResponseDto<CardDto> update(CardDto dto, Integer id) {
-        return null;
+    public ResponseDto<CardDto> update(@NonNull CardDto dto, @NonNull Integer id) {
+
+        List<ErrorDto>errors=this.cardValidation.errors(dto);
+        if (!errors.isEmpty()) {
+            return ResponseDto.<CardDto>builder()
+                    .code(400)
+                    .message("Validation error")
+                    .errors(errors)
+                    .build();
+        }
+
+        Optional<Card> cardOptional = cardRepository.findByIdAndDeletedAtIsNull(id);
+
+        if(cardOptional.isEmpty()) {
+            return ResponseDto.<CardDto>builder()
+                    .success(false)
+                    .code(400)
+                    .message("Card does not exist")
+                    .build();
+        }
+
+        Card cardToUpdate = cardOptional.get();
+
+        cardMapper.update(dto, cardToUpdate);
+        cardRepository.save(cardToUpdate);
+
+        return ResponseDto.<CardDto>builder()
+                .success(true)
+                .code(200)
+                .message("Success")
+                .build();
     }
 
     @Override
     public ResponseDto<CardDto> delete(Integer id) {
-        return null;
+
+        Optional<Card> cardOptional = cardRepository.findByIdAndDeletedAtIsNull(id);
+
+        if(cardOptional.isEmpty()) {
+            return ResponseDto.<CardDto>builder()
+                    .success(false)
+                    .code(400)
+                    .message("Card does not exist")
+                    .build();
+        }
+
+        cardRepository.deleteById(id);
+
+        return ResponseDto.<CardDto>builder()
+                .success(true)
+                .code(200)
+                .message("Success")
+                .build();
     }
 }

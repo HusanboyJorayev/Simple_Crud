@@ -6,6 +6,7 @@ import com.example.simple_crud.repository.UserRepository;
 import com.example.simple_crud.service.mapper.UserMapper;
 import com.example.simple_crud.service.validation.UserValidation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -94,7 +95,24 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
     }
 
     @Override
-    public ResponseDto<UserDto> delete(Integer id) {
-        return null;
+    public ResponseDto<UserDto> delete(@NonNull Integer id) {
+
+        Optional<User> userOptional = userRepository.findById(id);
+
+        if(userOptional.isEmpty()) {
+            return ResponseDto.<UserDto>builder()
+                    .success(false)
+                    .code(400)
+                    .message("User with this id does not exist")
+                    .build();
+        }
+
+        userRepository.deleteById(id);
+
+        return ResponseDto.<UserDto>builder()
+                .success(true)
+                .message("Success")
+                .data(userMapper.toDto(userOptional.get()))
+                .build();
     }
 }
