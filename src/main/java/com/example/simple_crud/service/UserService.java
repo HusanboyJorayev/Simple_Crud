@@ -35,34 +35,40 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
                     .build();
         }
 
-        User user = this.userMapper.toEntity(dto);
-        user.setCreatedAt(LocalDateTime.now());
-        this.userRepository.save(user);
+        try {
+            User user = this.userMapper.toEntity(dto);
+            user.setCreatedAt(LocalDateTime.now());
+            this.userRepository.save(user);
 
-        return ResponseDto.<UserDto>builder()
-                .success(true)
-                .message("Ok")
-                .data(this.userMapper.toDto(user))
-                .build();
+            return ResponseDto.<UserDto>builder()
+                    .success(true)
+                    .message("Ok")
+                    .data(this.userMapper.toDto(user))
+                    .build();
+        }
+        catch (Exception e) {
+            return ResponseDto.<UserDto>builder()
+                    .code(-2)
+                    .message("User while saving error")
+                    .build();
+        }
+
     }
 
     @Override
     public ResponseDto<UserDto> get(Integer id) {
 
-        Optional<User> optional = this.userRepository.findByIdAndDeletedAtIsNull(id);
-        if (optional.isEmpty()) {
-            return ResponseDto.<UserDto>builder()
-                    .code(-1)
-                    .message("User is not found")
-                    .build();
-        }
-        User user = optional.get();
+        return this.userRepository.findByIdAndDeletedAtIsNull(id)
+                .map(user -> ResponseDto.<UserDto>builder()
+                        .success(true)
+                        .message("Ok")
+                        .data(this.userMapper.toDtoWithCard(user))
+                        .build())
 
-        return ResponseDto.<UserDto>builder()
-                .success(true)
-                .message("Ok")
-                .data(this.userMapper.toDtoWithCard(user))
-                .build();
+                .orElse(ResponseDto.<UserDto>builder()
+                        .code(-1)
+                        .message("User is not found")
+                        .build());
     }
 
     @Override
