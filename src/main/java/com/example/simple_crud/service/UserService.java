@@ -6,6 +6,8 @@ import com.example.simple_crud.repository.UserRepository;
 import com.example.simple_crud.service.mapper.UserMapper;
 import com.example.simple_crud.service.validation.UserValidation;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
@@ -24,7 +26,7 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
     @Override
     public ResponseDto<UserDto> create(UserDto dto) {
 
-        List<ErrorDto> errors=this.userValidation.errors(dto);
+        List<ErrorDto> errors = this.userValidation.errors(dto);
         if (!errors.isEmpty()) {
             return ResponseDto.<UserDto>builder()
                     .code(-3)
@@ -47,14 +49,14 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
     @Override
     public ResponseDto<UserDto> get(Integer id) {
 
-        Optional<User>optional=this.userRepository.findByIdAndDeletedAtIsNull(id);
-        if (optional.isEmpty()){
+        Optional<User> optional = this.userRepository.findByIdAndDeletedAtIsNull(id);
+        if (optional.isEmpty()) {
             return ResponseDto.<UserDto>builder()
                     .code(-1)
                     .message("User is not found")
                     .build();
         }
-        User user=optional.get();
+        User user = optional.get();
 
         return ResponseDto.<UserDto>builder()
                 .success(true)
@@ -66,7 +68,7 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
     @Override
     public ResponseDto<UserDto> update(UserDto dto, Integer id) {
 
-        List<ErrorDto> errors=this.userValidation.errors(dto);
+        List<ErrorDto> errors = this.userValidation.errors(dto);
         if (!errors.isEmpty()) {
             return ResponseDto.<UserDto>builder()
                     .code(-3)
@@ -75,16 +77,16 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
                     .build();
         }
 
-        Optional<User>optional=this.userRepository.findByIdAndDeletedAtIsNull(id);
-        if (optional.isEmpty()){
+        Optional<User> optional = this.userRepository.findByIdAndDeletedAtIsNull(id);
+        if (optional.isEmpty()) {
             return ResponseDto.<UserDto>builder()
                     .code(-1)
                     .message("user is not found")
                     .build();
         }
-        User user=optional.get();
+        User user = optional.get();
         user.setUpdatedAt(LocalDateTime.now());
-        this.userMapper.update(dto,user);
+        this.userMapper.update(dto, user);
         this.userRepository.save(user);
 
         return ResponseDto.<UserDto>builder()
@@ -99,7 +101,7 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
 
         Optional<User> userOptional = userRepository.findById(id);
 
-        if(userOptional.isEmpty()) {
+        if (userOptional.isEmpty()) {
             return ResponseDto.<UserDto>builder()
                     .success(false)
                     .code(400)
@@ -113,6 +115,37 @@ public class UserService implements SimpleCrud<Integer, UserDto> {
                 .success(true)
                 .message("Success")
                 .data(userMapper.toDto(userOptional.get()))
+                .build();
+    }
+
+    public ResponseDto<Page<UserDto>> getByPage(Integer page, Integer size) {
+
+        Page<User> userPage = this.userRepository.findAllByDeletedAtIsNull(PageRequest.of(page, size));
+        if (userPage.isEmpty()) {
+            return ResponseDto.<Page<UserDto>>builder()
+                    .code(-1)
+                    .message("Users are not found")
+                    .build();
+        }
+        return ResponseDto.<Page<UserDto>>builder()
+                .success(true)
+                .message("OK")
+                .data(userPage.map(this.userMapper::toDto))
+                .build();
+    }
+
+    public ResponseDto<List<UserDto>> getAllUsersByQuery() {
+        List<User> userList = this.userRepository.getAllUsersByQuery();
+        if (userList.isEmpty()) {
+            return ResponseDto.<List<UserDto>>builder()
+                    .code(-1)
+                    .message("Users are not found")
+                    .build();
+        }
+        return ResponseDto.<List<UserDto>>builder()
+                .success(true)
+                .message("OK")
+                .data(userList.stream().map(this.userMapper::toDto).toList())
                 .build();
     }
 }

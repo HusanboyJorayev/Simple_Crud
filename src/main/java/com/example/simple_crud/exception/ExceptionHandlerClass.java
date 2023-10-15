@@ -24,7 +24,7 @@ public class ExceptionHandlerClass {
                                             String message=fieldError.getDefaultMessage();
                                             String rejectionValue=String.valueOf(fieldError.getRejectedValue());
 
-                                            return new ErrorDto(field,String.format("message::%s,rejactionValue::$s",message,rejectionValue));
+                                            return new ErrorDto(field,String.format("message::%s,rejactionValue::%s",message,rejectionValue));
                                         }).toList()
                         )
                         .build()

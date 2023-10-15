@@ -16,7 +16,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class UserDto {
 
-    @NotNull(message = "user id cannot be null")
     private Integer id;
     @NotBlank(message = "user name cannot be null or empty")
     private String name;
